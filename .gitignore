@@ -1,0 +1,16 @@
+/vendor/
+/vendor/*
+*.log
+*.tmp
+*.lock
+*.zip
+*.rar
+*.tar.gz
+*.7z
+*.bak
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+node_modules/
+.env
