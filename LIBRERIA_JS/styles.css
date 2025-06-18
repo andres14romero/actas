@@ -1,0 +1,106 @@
+body {
+  padding: 20px;
+  background: #eaf6fb;
+}
+.section-title {
+  font-weight: bold;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  color: #2176ae;
+}
+textarea {
+  min-height: 100px;
+}
+.editor-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 350px;
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+  background: #fff;
+  margin-bottom: 1.5rem;
+}
+
+/* Toolbar */
+.toolbar {
+  background: #f8f9fa;
+  border-bottom: 1px solid #d0d7de;
+  padding: 4px;
+}
+.toolbar-row {
+  margin-bottom: 0.25rem;
+}
+.toolbar-row + .toolbar-row { margin-top: 4px; }
+.toolbar button, .toolbar select {
+  margin-right: 0.25rem;
+  background: #e3f0fa;
+  border: 1px solid #b3d8f7;
+  color: #2176ae;
+  transition: background 0.2s;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.toolbar button:hover, .toolbar select:focus {
+  background: #d0eafd;
+  color: #176cae;
+}
+
+/* Editable area */
+.editable {
+  flex: 1 1 auto;
+  padding: 12px;
+  overflow-y: auto;
+  background: #f0f8fc;
+  border: 1px solid #b3d8f7;
+  border-radius: 6px;
+  color: #1a3a4a;
+  outline: none;
+  line-height: 1.5;
+  min-height: 150px;
+}
+.editable:focus { box-shadow: inset 0 0 0 2px #0d6efd; }
+
+/* Status bar */
+.statusbar {
+  font-size: 0.9em;
+  color: #2176ae;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0.5rem;
+  background: #e3f0fa;
+  border-radius: 0 0 0.25rem 0.25rem;
+}
+.word-header, .word-footer, #datosClienteVista, .contenido-doc {
+  font-family: inherit;
+}
+.word-header {
+  background: #e3f0fa !important;
+  border-bottom: 2px solid #b3d8f7 !important;
+  color: #2176ae !important;
+}
+.word-footer {
+  background: #e3f0fa !important;
+  border-top: 2px solid #b3d8f7 !important;
+  color: #2176ae !important;
+}
+.card-header {
+  background: #e3f0fa !important;
+  color: #2176ae !important;
+  border-bottom: 1px solid #b3d8f7 !important;
+}
+.form-label {
+  color: #2176ae;
+}
+input.form-control, select.form-select {
+  background: #fafdff;
+  border: 1px solid #b3d8f7;
+  color: #1a3a4a;
+}
+input.form-control:focus, select.form-select:focus {
+  border-color: #2176ae;
+  background: #eaf6fb;
+  color: #176cae;
+}
