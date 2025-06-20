@@ -155,9 +155,17 @@
       </footer>
     </div>
 
-    <div class="mt-4 mb-4 text-center">
-      <button class="btn btn-success btn-lg me-2" type="button" onclick="descargarWordDocx()">Generar Word</button>
-      <button class="btn btn-primary btn-lg" type="button" id="btnVistaPrevia">Vista previa</button>
+    <div class="mt-3">
+      <button class="btn btn-success" type="button" onclick="descargarWordDocx()">Descargar Word</button>
+    </div>
+
+    <!-- Acciones -->
+    <div class="d-flex justify-content-end gap-2">
+      <button class="btn btn-secondary" id="btnInsertarCampo">Insertar campo</button>
+      <button class="btn btn-outline-primary" id="btnVistaPrevia">Vista previa</button>
+      <button class="btn btn-outline-success" id="btnExportarPDF">Exportar PDF</button>
+      <button class="btn btn-outline-dark" id="btnImprimir">Imprimir</button>
+      <button class="btn btn-primary" id="btnGuardar">Guardar</button>
     </div>
 
     <!-- Modal de vista previa -->
