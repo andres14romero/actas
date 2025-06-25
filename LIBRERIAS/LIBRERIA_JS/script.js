@@ -25,6 +25,15 @@ window.addEventListener('DOMContentLoaded', () => {
     mostrarDatosCliente(0);
     select.addEventListener('change', e => mostrarDatosCliente(e.target.value));
   }
+
+  // Valores por defecto al cargar la página
+  document.getElementById('tipoDocumento').value = "Informe";
+  document.getElementById('tamanoPapel').value = "A4";
+  document.getElementById('orientacionPapel').value = "Vertical";
+  document.getElementById('margenSuperior').value = 25;
+  document.getElementById('margenInferior').value = 25;
+  document.getElementById('margenIzquierda').value = 20;
+  document.getElementById('margenDerecha').value = 20;
 });
 
 function mostrarDatosCliente(idx) {
@@ -115,7 +124,169 @@ document.getElementById('inputImagen').addEventListener('change', function(e) {
   reader.readAsDataURL(file);
 });
 
-// DESCARGA WORD MEJORADA: meta charset y estilos para encabezado/pie
+// Función para obtener el CSS de márgenes y orientación
+function getEstiloDocumento() {
+  const sup = document.getElementById('margenSuperior').value || 25;
+  const inf = document.getElementById('margenInferior').value || 25;
+  const izq = document.getElementById('margenIzquierda').value || 20;
+  const der = document.getElementById('margenDerecha').value || 20;
+  const orientacion = document.getElementById('orientacionPapel').value || "Vertical";
+  const fuente = document.getElementById('fontNameSelect').value || "Arial";
+  // Medidas en mm para CSS y fuente
+  return `
+    margin-top:${sup}mm;
+    margin-bottom:${inf}mm;
+    margin-left:${izq}mm;
+    margin-right:${der}mm;
+    ${orientacion === "Horizontal" ? "width:297mm;height:210mm;" : "width:210mm;height:297mm;"}
+    font-family:'${fuente}', Arial, sans-serif;
+  `;
+}
+
+// Función para obtener el bloque de datos de la plantilla
+function getDatosPlantillaHTML() {
+  const nombre = document.getElementById('nombrePlantilla').value || '';
+  const asignado = document.getElementById('asignadoA').value || '';
+  return `
+    <div style="background:#e3f0fa;border:1px solid #b3d8f7;padding:10px 16px;margin-bottom:16px;border-radius:8px;">
+      <b>Nombre de la plantilla:</b> ${nombre}<br>
+      <b>Asignado a:</b> ${asignado}
+    </div>
+  `;
+}
+
+// ========== FUNCIONES PARA LOS BOTONES DE ACCIONES ==========
+
+// Insertar campo
+document.getElementById('btnInsertarCampo').addEventListener('click', function() {
+  document.execCommand('insertText', false, '{{CAMPO}}');
+  editor.focus();
+});
+
+// Vista previa (modal Bootstrap)
+document.getElementById('btnVistaPrevia').addEventListener('click', function() {
+  const header = document.getElementById('headerArea').innerHTML;
+  const footer = document.getElementById('footerArea').innerHTML;
+  const contenido = document.getElementById('editor').innerHTML;
+  const idx = document.getElementById('selectCliente').value;
+  const cliente = clientes[idx];
+  const datosCliente = `<p><b>Cédula:</b> ${cliente.cedula}<br>
+                        <b>Nombres:</b> ${cliente.nombres}<br>
+                        <b>Estado Civil:</b> ${cliente.estadoCivil}</p><hr>`;
+  const datosPlantilla = getDatosPlantillaHTML();
+  const estiloDocumento = getEstiloDocumento();
+  const html = `
+    <div style="${estiloDocumento}">
+      ${datosPlantilla}
+      <div class="word-header" style="border-bottom:2px solid #888;background:#f3f3f3;text-align:center;padding:8px 0 4px 0;font-size:1.1em;font-weight:bold;margin-bottom:16px;">${header}</div>
+      ${datosCliente}
+      <div>${contenido}</div>
+      <div class="word-footer" style="border-top:2px solid #888;background:#f3f3f3;text-align:center;padding:4px 0 8px 0;font-size:1em;margin-top:24px;">${footer}</div>
+    </div>
+  `;
+  document.getElementById('previewContent').innerHTML = html;
+  const modal = new bootstrap.Modal(document.getElementById('modalVistaPrevia'));
+  modal.show();
+});
+
+// Exportar PDF
+document.getElementById('btnExportarPDF').addEventListener('click', function() {
+  const header = document.getElementById('headerArea').innerText;
+  const footer = document.getElementById('footerArea').innerText;
+  const contenido = document.getElementById('editor').innerText;
+  const idx = document.getElementById('selectCliente').value;
+  const cliente = clientes[idx];
+  const datosCliente = `Cédula: ${cliente.cedula}\nNombres: ${cliente.nombres}\nEstado Civil: ${cliente.estadoCivil}\n\n`;
+  const nombre = document.getElementById('nombrePlantilla').value || '';
+  const asignado = document.getElementById('asignadoA').value || '';
+  const datosPlantilla = 
+    `Nombre de la plantilla: ${nombre}\n` +
+    `Asignado a: ${asignado}\n\n`;
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 10;
+  doc.setFontSize(10);
+  doc.text(datosPlantilla, 10, y);
+  y += 20;
+  doc.setFontSize(14);
+  doc.text(header, 105, y, { align: "center" });
+  y += 10;
+  doc.setFontSize(10);
+  doc.text(datosCliente, 10, y);
+  y += 20;
+  doc.setFontSize(12);
+  doc.text(contenido, 10, y);
+  y += 60;
+  doc.setFontSize(10);
+  doc.text(footer, 105, 280, { align: "center" });
+  doc.save("documento.pdf");
+});
+
+// Imprimir
+document.getElementById('btnImprimir').addEventListener('click', function() {
+  const header = document.getElementById('headerArea').innerHTML;
+  const footer = document.getElementById('footerArea').innerHTML;
+  const contenido = document.getElementById('editor').innerHTML;
+  const idx = document.getElementById('selectCliente').value;
+  const cliente = clientes[idx];
+  const datosCliente = `<p><b>Cédula:</b> ${cliente.cedula}<br>
+                        <b>Nombres:</b> ${cliente.nombres}<br>
+                        <b>Estado Civil:</b> ${cliente.estadoCivil}</p><hr>`;
+  const datosPlantilla = getDatosPlantillaHTML();
+  const estiloDocumento = getEstiloDocumento();
+  const html = `
+    <div style="${estiloDocumento}">
+      ${datosPlantilla}
+      <div class="word-header" style="border-bottom:2px solid #888;background:#f3f3f3;text-align:center;padding:8px 0 4px 0;font-size:1.1em;font-weight:bold;margin-bottom:16px;">${header}</div>
+      ${datosCliente}
+      <div>${contenido}</div>
+      <div class="word-footer" style="border-top:2px solid #888;background:#f3f3f3;text-align:center;padding:4px 0 8px 0;font-size:1em;margin-top:24px;">${footer}</div>
+    </div>
+  `;
+  const win = window.open('', '', 'width=900,height=700');
+  win.document.write('<html><head><title>Imprimir</title><meta charset="UTF-8"></head><body>' + html + '</body></html>');
+  win.document.close();
+  win.focus();
+  win.print();
+  setTimeout(() => win.close(), 1000);
+});
+
+// Guardar (descargar como HTML)
+document.getElementById('btnGuardar').addEventListener('click', function() {
+  const header = document.getElementById('headerArea').innerHTML;
+  const footer = document.getElementById('footerArea').innerHTML;
+  const contenido = document.getElementById('editor').innerHTML;
+  const idx = document.getElementById('selectCliente').value;
+  const cliente = clientes[idx];
+  const datosCliente = `<p><b>Cédula:</b> ${cliente.cedula}<br>
+                        <b>Nombres:</b> ${cliente.nombres}<br>
+                        <b>Estado Civil:</b> ${cliente.estadoCivil}</p><hr>`;
+  const datosPlantilla = getDatosPlantillaHTML();
+  const estiloDocumento = getEstiloDocumento();
+  const html = `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="UTF-8">
+    <title>${document.getElementById('nombrePlantilla').value || 'Plantilla'}</title>
+  </head>
+  <body>
+    <div style="${estiloDocumento}">
+      ${datosPlantilla}
+      <div class="word-header" style="border-bottom:2px solid #888;background:#f3f3f3;text-align:center;padding:8px 0 4px 0;font-size:1.1em;font-weight:bold;margin-bottom:16px;">${header}</div>
+      ${datosCliente}
+      <div>${contenido}</div>
+      <div class="word-footer" style="border-top:2px solid #888;background:#f3f3f3;text-align:center;padding:4px 0 8px 0;font-size:1em;margin-top:24px;">${footer}</div>
+    </div>
+  </body>
+  </html>
+  `;
+  const blob = new Blob([html], {type: "text/html;charset=utf-8"});
+  saveAs(blob, (document.getElementById('nombrePlantilla').value || 'plantilla') + ".html");
+});
+
+// DESCARGA WORD MEJORADA
 function descargarWordDocx() {
   const header = document.getElementById('headerArea').innerHTML;
   const footer = document.getElementById('footerArea').innerHTML;
@@ -125,8 +296,8 @@ function descargarWordDocx() {
   const datosCliente = `<p><b>Cédula:</b> ${cliente.cedula}<br>
                         <b>Nombres:</b> ${cliente.nombres}<br>
                         <b>Estado Civil:</b> ${cliente.estadoCivil}</p><hr>`;
-
-  // --- NUEVO: HTML completo con meta charset y estilos para encabezado/pie ---
+  const datosPlantilla = getDatosPlantillaHTML();
+  const estiloDocumento = getEstiloDocumento();
   const html = `
   <!DOCTYPE html>
   <html>
@@ -153,124 +324,16 @@ function descargarWordDocx() {
     </style>
   </head>
   <body>
-    <div class="word-header">${header}</div>
-    ${datosCliente}
-    <div>${contenido}</div>
-    <div class="word-footer">${footer}</div>
+    <div style="${estiloDocumento}">
+      ${datosPlantilla}
+      <div class="word-header">${header}</div>
+      ${datosCliente}
+      <div>${contenido}</div>
+      <div class="word-footer">${footer}</div>
+    </div>
   </body>
   </html>
   `;
-
   const converted = window.htmlDocx.asBlob(html);
   saveAs(converted, 'documento.docx');
 }
-
-// ========== FUNCIONES PARA LOS BOTONES DE ACCIONES ==========
-
-// Insertar campo
-document.getElementById('btnInsertarCampo').addEventListener('click', function() {
-  // Inserta un marcador de campo en la posición del cursor
-  document.execCommand('insertText', false, '{{CAMPO}}');
-  editor.focus();
-});
-
-// Vista previa (modal Bootstrap)
-document.getElementById('btnVistaPrevia').addEventListener('click', function() {
-  const header = document.getElementById('headerArea').innerHTML;
-  const footer = document.getElementById('footerArea').innerHTML;
-  const contenido = document.getElementById('editor').innerHTML;
-  const idx = document.getElementById('selectCliente').value;
-  const cliente = clientes[idx];
-  const datosCliente = `<p><b>Cédula:</b> ${cliente.cedula}<br>
-                        <b>Nombres:</b> ${cliente.nombres}<br>
-                        <b>Estado Civil:</b> ${cliente.estadoCivil}</p><hr>`;
-  const html = `
-    <div class="word-header" style="border-bottom:2px solid #888;background:#f3f3f3;text-align:center;padding:8px 0 4px 0;font-size:1.1em;font-weight:bold;margin-bottom:16px;">${header}</div>
-    ${datosCliente}
-    <div>${contenido}</div>
-    <div class="word-footer" style="border-top:2px solid #888;background:#f3f3f3;text-align:center;padding:4px 0 8px 0;font-size:1em;margin-top:24px;">${footer}</div>
-  `;
-  document.getElementById('previewContent').innerHTML = html;
-  const modal = new bootstrap.Modal(document.getElementById('modalVistaPrevia'));
-  modal.show();
-});
-
-// Exportar PDF
-document.getElementById('btnExportarPDF').addEventListener('click', function() {
-  const header = document.getElementById('headerArea').innerText;
-  const footer = document.getElementById('footerArea').innerText;
-  const contenido = document.getElementById('editor').innerText;
-  const idx = document.getElementById('selectCliente').value;
-  const cliente = clientes[idx];
-  const datosCliente = `Cédula: ${cliente.cedula}\nNombres: ${cliente.nombres}\nEstado Civil: ${cliente.estadoCivil}\n\n`;
-
-  // Usamos jsPDF para exportar texto plano (simple)
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  let y = 10;
-  doc.setFontSize(14);
-  doc.text(header, 105, y, { align: "center" });
-  y += 10;
-  doc.setFontSize(10);
-  doc.text(datosCliente, 10, y);
-  y += 20;
-  doc.setFontSize(12);
-  doc.text(contenido, 10, y);
-  y += 60;
-  doc.setFontSize(10);
-  doc.text(footer, 105, 280, { align: "center" });
-  doc.save("documento.pdf");
-});
-
-// Imprimir
-document.getElementById('btnImprimir').addEventListener('click', function() {
-  const header = document.getElementById('headerArea').innerHTML;
-  const footer = document.getElementById('footerArea').innerHTML;
-  const contenido = document.getElementById('editor').innerHTML;
-  const idx = document.getElementById('selectCliente').value;
-  const cliente = clientes[idx];
-  const datosCliente = `<p><b>Cédula:</b> ${cliente.cedula}<br>
-                        <b>Nombres:</b> ${cliente.nombres}<br>
-                        <b>Estado Civil:</b> ${cliente.estadoCivil}</p><hr>`;
-  const html = `
-    <div class="word-header" style="border-bottom:2px solid #888;background:#f3f3f3;text-align:center;padding:8px 0 4px 0;font-size:1.1em;font-weight:bold;margin-bottom:16px;">${header}</div>
-    ${datosCliente}
-    <div>${contenido}</div>
-    <div class="word-footer" style="border-top:2px solid #888;background:#f3f3f3;text-align:center;padding:4px 0 8px 0;font-size:1em;margin-top:24px;">${footer}</div>
-  `;
-  const win = window.open('', '', 'width=900,height=700');
-  win.document.write('<html><head><title>Imprimir</title><meta charset="UTF-8"></head><body>' + html + '</body></html>');
-  win.document.close();
-  win.focus();
-  win.print();
-  setTimeout(() => win.close(), 1000);
-});
-
-// Guardar (descargar como HTML)
-document.getElementById('btnGuardar').addEventListener('click', function() {
-  const header = document.getElementById('headerArea').innerHTML;
-  const footer = document.getElementById('footerArea').innerHTML;
-  const contenido = document.getElementById('editor').innerHTML;
-  const idx = document.getElementById('selectCliente').value;
-  const cliente = clientes[idx];
-  const datosCliente = `<p><b>Cédula:</b> ${cliente.cedula}<br>
-                        <b>Nombres:</b> ${cliente.nombres}<br>
-                        <b>Estado Civil:</b> ${cliente.estadoCivil}</p><hr>`;
-  const html = `
-  <!DOCTYPE html>
-  <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>${document.getElementById('nombrePlantilla').value || 'Plantilla'}</title>
-  </head>
-  <body>
-    <div class="word-header" style="border-bottom:2px solid #888;background:#f3f3f3;text-align:center;padding:8px 0 4px 0;font-size:1.1em;font-weight:bold;margin-bottom:16px;">${header}</div>
-    ${datosCliente}
-    <div>${contenido}</div>
-    <div class="word-footer" style="border-top:2px solid #888;background:#f3f3f3;text-align:center;padding:4px 0 8px 0;font-size:1em;margin-top:24px;">${footer}</div>
-  </body>
-  </html>
-  `;
-  const blob = new Blob([html], {type: "text/html;charset=utf-8"});
-  saveAs(blob, (document.getElementById('nombrePlantilla').value || 'plantilla') + ".html");
-});
