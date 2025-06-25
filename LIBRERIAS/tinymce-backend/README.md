@@ -9,6 +9,21 @@ Este ejemplo muestra cómo usar TinyMCE en el frontend y generar un PDF fiel al 
 - Puppeteer abre una instancia de Chromium, renderiza el HTML y genera un PDF idéntico al diseño original.
 - El PDF se descarga automáticamente en el navegador.
 
+## Instalación y ejecución
+
+1. Instala las dependencias:
+   
+   npm install
+
+
+2. Inicia el servidor:
+
+   node server.js
+   
+3. Abre tu navegador, acede a http://localhost:3000 y prueba el editor.
+
+
+
 ## Ventajas
 
 - El PDF respeta casi todo el formato, CSS, imágenes, tablas, etc.
