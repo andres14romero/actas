@@ -1,0 +1,20 @@
+-- Base de datos: TCPDFPHP (o la que uses)
+CREATE DATABASE IF NOT EXISTS TCPDFPHP CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE TCPDFPHP;
+
+-- Tabla para almacenar el contenido HTML
+CREATE TABLE IF NOT EXISTS texto (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  texto LONGTEXT NOT NULL,
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla para header y footer
+CREATE TABLE IF NOT EXISTS header_footer (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  header VARCHAR(255) NOT NULL,
+  footer VARCHAR(255) NOT NULL,
+  texto_id INT NOT NULL,
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (texto_id) REFERENCES texto(id) ON DELETE CASCADE
+);
