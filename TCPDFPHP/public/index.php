@@ -16,7 +16,7 @@
 </head>
 <body>
   <h1>Crear nuevo documento</h1>
-  <form action="../src/save.php" method="post">
+  <form action="../src/generate_pdf.php" method="POST" enctype="multipart/form-data">
     <label>Encabezado:</label><br>
     <input type="text" name="header" required style="width:100%"><br><br>
 
@@ -27,6 +27,14 @@
     <input type="text" name="footer" required style="width:100%"><br><br>
 
     <button type="submit">Guardar y Generar PDF</button>
+
+    <label>Imagen del encabezado:</label>
+<input type="file" name="header_img"><br><br>
+
+...
+
+<label>Imagen del pie de página:</label>
+<input type="file" name="footer_img"><br><br>
   </form>
 
   <br>
