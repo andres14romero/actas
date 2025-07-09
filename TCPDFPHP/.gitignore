@@ -1,3 +1,5 @@
 /vendor/
 /public/*.log
+
 uploads/*
+!uploads/.keep
